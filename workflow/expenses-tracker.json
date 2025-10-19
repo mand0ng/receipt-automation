@@ -1,0 +1,852 @@
+{
+  "name": "expenses-telegram-bot-commands",
+  "nodes": [
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.from.id }}",
+        "text": "Invalid Command. Please try again.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -2000,
+        928
+      ],
+      "id": "fad6f5b7-2385-4cec-8b16-b43bd8161bbe",
+      "name": "Send a text message",
+      "webhookId": "0fdc7dda-832c-4ed4-90f7-fa3fd7d9806e",
+      "credentials": {
+        "telegramApi": {
+          "id": "90WX8JZEsxa2ckMC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $json.message.from.id }}",
+        "message": "Please provide your expenses.",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Description",
+              "placeholder": "Item1,2,3",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Cost",
+              "fieldType": "number",
+              "placeholder": "100",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1248,
+        992
+      ],
+      "id": "aee06acd-4416-4e68-80a8-cab4f2519383",
+      "name": "Send message and wait for response1",
+      "webhookId": "9fad311f-0560-43e1-af32-20866d6d62a9",
+      "credentials": {
+        "telegramApi": {
+          "id": "90WX8JZEsxa2ckMC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2480,
+        752
+      ],
+      "id": "0d11d8f2-ddb8-443e-aadb-5acce8f610a9",
+      "name": "Telegram Command",
+      "webhookId": "ece1ebc9-d299-431b-bfc9-2aa69d2c402c",
+      "credentials": {
+        "telegramApi": {
+          "id": "90WX8JZEsxa2ckMC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "febb15aa-21a7-4612-9bad-6b3b293e0f95",
+              "leftValue": "={{ $json.message.entities[0].type }}",
+              "rightValue": "bot_command",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "8d216eba-c72e-41c9-bc3f-2be807369643",
+              "leftValue": "={{ $json.message.from.id }}",
+              "rightValue": 8360557685,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2272,
+        752
+      ],
+      "id": "a26b23ac-de27-4856-be52-ecd9830d4279",
+      "name": "isCommand"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/picture",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e7f28111-e613-4840-9b99-57b2589e632a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "picture-input"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ec3b0edf-832d-46ed-a885-70b42de76116",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/manual",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "manual-input"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -1984,
+        528
+      ],
+      "id": "d04695bd-6a67-47bd-9fd8-ccd612897a66",
+      "name": "Manual or Picture"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Command').item.json.message.chat.id }}",
+        "binaryData": true,
+        "binaryPropertyName": "Expenses_Picture",
+        "additionalFields": {
+          "caption": "={{ (+new Date).toString(36).slice(-5) + Math.random().toString(36).substr(2, 5) }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1392,
+        368
+      ],
+      "id": "3b1eb1b1-d466-4097-94bb-ab807ef6b8e9",
+      "name": "Send Photo",
+      "webhookId": "165609d2-a9ec-4f7c-ac4c-f4b346797a7b",
+      "credentials": {
+        "telegramApi": {
+          "id": "90WX8JZEsxa2ckMC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $json.message.from.id }}",
+        "message": "Please attach expenses picture",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Expenses Picture",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "messageButtonLabel": "Upload",
+          "responseFormTitle": "Attach expenses to track",
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 3,
+              "resumeUnit": "minutes"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1616,
+        368
+      ],
+      "id": "629c4466-2dd6-420f-813c-81621b8acdeb",
+      "name": "Ask for Photo",
+      "webhookId": "bce010ea-807e-4c2c-b63d-13f0982bcd36",
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "90WX8JZEsxa2ckMC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Send Photo').item.json.result.chat.id }}",
+        "message": "=ID: {{ $('Send Photo').item.json.result.caption }}\n\n===DETAILS===\n{{ $('AI Agent').first().json.output.readable_formatted_text }}\n\n===SUMMARY===\n{{ Object.entries($json.output.summary)\n    .map(([key, value]) => `${key}: ${value}`)\n    .join('\\n') }}\n\nIs the translation accurate enough? ",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 3,
+              "resumeUnit": "minutes"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -496,
+        368
+      ],
+      "id": "20208449-4477-459d-8947-1630119ed5dc",
+      "name": "Confirm Extracted Text",
+      "webhookId": "efdd14fb-c9e3-4b6a-b0d5-bedfbc079f15",
+      "credentials": {
+        "telegramApi": {
+          "id": "90WX8JZEsxa2ckMC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ae4bdcfa-55ee-459b-bf58-6c947ef54765",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        368
+      ],
+      "id": "919bdcb3-c810-412e-8d42-f9ab193d69f0",
+      "name": "isAccurate"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "={{ $('Send Photo').item.json.result.chat.id }}",
+        "message": "=Can you describe the inaccuracy. ",
+        "responseType": "freeText",
+        "options": {
+          "messageButtonLabel": "Describe",
+          "responseFormDescription": "====DETAILS===\n{{ $('AI Agent').first().json.output.readable_formatted_text }}\n\n===SUMMARY===\n{{ Object.entries($('AI Agent').first().json.output.summary)\n    .map(([key, value]) => `${key}: ${value}`)\n    .join('\\n') }}\n\nCan you describe the inaccuracy. ",
+          "responseFormCustomCss": ":root {\n\t--font-family: 'Open Sans', sans-serif;\n\t--font-weight-normal: 400;\n\t--font-weight-bold: 600;\n\t--font-size-body: 12px;\n\t--font-size-label: 14px;\n\t--font-size-test-notice: 12px;\n\t--font-size-input: 14px;\n\t--font-size-header: 20px;\n\t--font-size-paragraph: 14px;\n\t--font-size-link: 12px;\n\t--font-size-error: 12px;\n\t--font-size-html-h1: 28px;\n\t--font-size-html-h2: 20px;\n\t--font-size-html-h3: 16px;\n\t--font-size-html-h4: 14px;\n\t--font-size-html-h5: 12px;\n\t--font-size-html-h6: 10px;\n\t--font-size-subheader: 14px;\n\n\t/* Colors */\n\t--color-background: #fbfcfe;\n\t--color-test-notice-text: #e6a23d;\n\t--color-test-notice-bg: #fefaf6;\n\t--color-test-notice-border: #f6dcb7;\n\t--color-card-bg: #ffffff;\n\t--color-card-border: #dbdfe7;\n\t--color-card-shadow: rgba(99, 77, 255, 0.06);\n\t--color-link: #7e8186;\n\t--color-header: #525356;\n\t--color-label: #555555;\n\t--color-input-border: #dbdfe7;\n\t--color-input-text: #71747A;\n\t--color-focus-border: rgb(90, 76, 194);\n\t--color-submit-btn-bg: #ff6d5a;\n\t--color-submit-btn-text: #ffffff;\n\t--color-error: #ea1f30;\n\t--color-required: #ff6d5a;\n\t--color-clear-button-bg: #7e8186;\n\t--color-html-text: #555;\n\t--color-html-link: #ff6d5a;\n\t--color-header-subtext: #7e8186;\n\n\t/* Border Radii */\n\t--border-radius-card: 8px;\n\t--border-radius-input: 6px;\n\t--border-radius-clear-btn: 50%;\n\t--card-border-radius: 8px;\n\n\t/* Spacing */\n\t--padding-container-top: 24px;\n\t--padding-card: 24px;\n\t--padding-test-notice-vertical: 12px;\n\t--padding-test-notice-horizontal: 24px;\n\t--margin-bottom-card: 16px;\n\t--padding-form-input: 12px;\n\t--card-padding: 24px;\n\t--card-margin-bottom: 16px;\n\n\t/* Dimensions */\n\t--container-width: 448px;\n\t--submit-btn-height: 48px;\n\t--checkbox-size: 18px;\n\n\t/* Others */\n\t--box-shadow-card: 0px 4px 16px 0px var(--color-card-shadow);\n\t--opacity-placeholder: 0.5;\n}\n\n.form-header {\n  text-align: left !important;\n}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        688
+      ],
+      "id": "f78b036d-c0a7-4a7f-b51d-20f3a3ac5400",
+      "name": "Ask user for revision",
+      "webhookId": "69611ba5-25bb-4302-9781-38ce56e2c1a5",
+      "credentials": {
+        "telegramApi": {
+          "id": "90WX8JZEsxa2ckMC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "",
+          "mode": "url",
+          "cachedResultName": "",
+          "cachedResultUrl": ""
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        576,
+        240
+      ],
+      "id": "505c6095-6fc8-48ac-98d1-094ee2d807b1",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "Nf7PKeH6i2mVSnqd",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Send Photo').item.json.result.caption }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        320,
+        240
+      ],
+      "id": "bdd64276-4f8b-4575-8dd9-4b8fe5ba0ee8",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "g0mqiU1Neb7mZjf7",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Send Photo')?.first().json.result.photo.last().file_id.replace(/\\n/g, '') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        240
+      ],
+      "id": "91419ee6-02d7-4d84-8ce2-b9e2e173e6bf",
+      "name": "Get a file for Google",
+      "webhookId": "de48bb26-fc62-44a8-84b3-c3153901731f",
+      "credentials": {
+        "telegramApi": {
+          "id": "90WX8JZEsxa2ckMC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract all readable text from this receipt image as clean plain text. \nDo not describe positions or bounding boxes — only return the text in natural reading order.\n\nAfter extracting all text, identify and output these key fields if they exist: (Details)\n- Merchant name\n- Location / Address\n- Order number\n- Subtotal\n- Tax\n- Tip\n- Total\n- Payment method\n- Items purchsed (list)\n\nAlso put a summary if field exists: (summary)\n- Description (general Description of the extracted text, just a phrase. eg. Food, House Items, Computer Parts and etc.)\n- Tax (if exists)\n- Total w/o tax\n- Total (overall/grand total)\n\n\n{{ (()=>{\n  var isRevision = $('Ask user for revision').isExecuted;\n  var revisionText = \"There was an inaccuracy on the text extraction, Can you please revise the text_content, details and summary edit / change. \";\n\n  return $if(isRevision, revisionText + $('Ask user for revision').first().json.data.text , \"\")\n\n})() }}\n\n\nmy expected json schema output is this:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"details\": { \"$ref\": \"#/$defs/details\" },\n    \"summary\": { \"$ref\": \"#/$defs/summary\" },\n    \"readable_formatted_text\": {\n      \"type\": \"string\",\n      \"description\": \"A human-readable formatted text representation of the receipt.\"\n    }\n  },\n  \"required\": [\"details\", \"summary\", \"readable_formatted_text\"],\n  \"$defs\": {\n    \"details\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"Merchant name\": { \"type\": \"string\" },\n        \"Location / Address\": { \"type\": \"string\" },\n        \"Order number\": { \"type\": \"integer\" },\n        \"Subtotal\": { \"type\": \"number\" },\n        \"Tax\": { \"type\": \"number\" },\n        \"Total\": { \"type\": \"number\" },\n        \"Payment method\": { \"type\": \"string\" },\n        \"Items purchased\": {\n          \"type\": \"array\",\n          \"items\": { \"type\": \"string\" }\n        }\n      },\n      \"required\": [\n        \"Merchant name\",\n        \"Location / Address\",\n        \"Order number\",\n        \"Subtotal\",\n        \"Tax\",\n        \"Total\",\n        \"Payment method\",\n        \"Items purchased\"\n      ]\n    },\n    \"summary\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"Description\": { \"type\": \"string\" },\n        \"Tax\": { \"type\": \"number\" },\n        \"Total w/o tax\": { \"type\": \"number\" },\n        \"Total\": { \"type\": \"number\" }\n      },\n      \"required\": [\"Description\", \"Tax\", \"Total w/o tax\", \"Total\"]\n    }\n  }\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -928,
+        368
+      ],
+      "id": "01015345-237d-4d43-a4ed-69ff1e26336d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        752
+      ],
+      "id": "6e7d9d17-6781-44cd-894e-c76f42e688f0",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "SHMmYpkNwZ7gHty7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"details\": { \"$ref\": \"#/$defs/details\" },\n    \"summary\": { \"$ref\": \"#/$defs/summary\" },\n    \"readable_formatted_text\": {\n      \"type\": \"string\",\n      \"description\": \"A human-readable formatted text representation of the receipt.\"\n    }\n  },\n  \"required\": [\"details\", \"summary\", \"readable_formatted_text\"],\n  \"$defs\": {\n    \"details\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"Merchant name\": { \"type\": \"string\" },\n        \"Location / Address\": { \"type\": \"string\" },\n        \"Order number\": { \"type\": \"integer\" },\n        \"Subtotal\": { \"type\": \"number\" },\n        \"Tax\": { \"type\": \"number\" },\n        \"Total\": { \"type\": \"number\" },\n        \"Payment method\": { \"type\": \"string\" },\n        \"Items purchased\": {\n          \"type\": \"array\",\n          \"items\": { \"type\": \"string\" }\n        }\n      },\n      \"required\": [\n        \"Merchant name\",\n        \"Location / Address\",\n        \"Order number\",\n        \"Subtotal\",\n        \"Tax\",\n        \"Total\",\n        \"Payment method\",\n        \"Items purchased\"\n      ]\n    },\n    \"summary\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"Description\": { \"type\": \"string\" },\n        \"Tax\": { \"type\": \"number\" },\n        \"Total w/o tax\": { \"type\": \"number\" },\n        \"Total\": { \"type\": \"number\" }\n      },\n      \"required\": [\"Description\", \"Tax\", \"Total w/o tax\", \"Total\"]\n    }\n  }\n}\n",
+        "autoFix": true,
+        "customizeRetryPrompt": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -528,
+        704
+      ],
+      "id": "808ce994-0839-4fd6-b54f-fc350f029960",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Send Photo')?.first().json.result.photo.last().file_id.replace(/\\n/g, '') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1200,
+        368
+      ],
+      "id": "24d51a7e-a82e-486e-af3b-f05a80516422",
+      "name": "Get a file1",
+      "webhookId": "de48bb26-fc62-44a8-84b3-c3153901731f",
+      "credentials": {
+        "telegramApi": {
+          "id": "90WX8JZEsxa2ckMC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "my_test_session",
+        "contextWindowLength": 2
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -768,
+        592
+      ],
+      "id": "308ba1b0-18ea-4bc2-97e2-a11a71640285",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Command').item.json.message.from.id }}",
+        "text": "=Expenses successfully logged.\n\n{{ Object.entries($json)\n    .map(([key, value]) => `${key}: ${value}`)\n    .join('\\n') }}\n\n\nLINK: https://docs.google.com/spreadsheets/d/1QgftUZ7iGW-M2SGqy4v1d9S9j5Wx7PzO1X-eI3PdClU/edit?gid=0#gid=0",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        992
+      ],
+      "id": "563ded7d-69eb-4b1f-bf33-c0f1f9ddf042",
+      "name": "Send a text message1",
+      "webhookId": "b83b0edd-ebf3-4070-b66b-b45d8b39b63d",
+      "credentials": {
+        "telegramApi": {
+          "id": "90WX8JZEsxa2ckMC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Command').item.json.message.from.id }}",
+        "text": "=Expenses successfully logged.\n\n{{ Object.entries($json)\n    .map(([key, value]) => `${key}: ${value}`)\n    .join('\\n') }}\n\n\nLINK: https://docs.google.com/spreadsheets/d/1QgftUZ7iGW-M2SGqy4v1d9S9j5Wx7PzO1X-eI3PdClU/edit?gid=0#gid=0",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        832,
+        608
+      ],
+      "id": "0d2ee519-b598-4ccd-820c-ccf370499b35",
+      "name": "Send a text message3",
+      "webhookId": "b83b0edd-ebf3-4070-b66b-b45d8b39b63d",
+      "credentials": {
+        "telegramApi": {
+          "id": "90WX8JZEsxa2ckMC",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "",
+          "mode": "url"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -448,
+        992
+      ],
+      "id": "efd5cd65-bcbd-40d4-ad80-6a51bc057e6c",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleApi": {
+          "id": "Nf7PKeH6i2mVSnqd",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Command": {
+      "main": [
+        [
+          {
+            "node": "isCommand",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isCommand": {
+      "main": [
+        [
+          {
+            "node": "Manual or Picture",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual or Picture": {
+      "main": [
+        [
+          {
+            "node": "Ask for Photo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message and wait for response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Photo": {
+      "main": [
+        [
+          {
+            "node": "Get a file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask for Photo": {
+      "main": [
+        [
+          {
+            "node": "Send Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Extracted Text": {
+      "main": [
+        [
+          {
+            "node": "isAccurate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isAccurate": {
+      "main": [
+        [
+          {
+            "node": "Get a file for Google",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ask user for revision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask user for revision": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file for Google": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Confirm Extracted Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "be52b899-400e-4c43-b505-3625a809c2b2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bb589d69d618a810a206eb936d008324d1fbc06a196e637bb5a8b3f66023bd92"
+  },
+  "id": "c0bFWxCKJwspT23a",
+  "tags": []
+}

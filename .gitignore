@@ -1,0 +1,9 @@
+# Environment variables
+.env
+
+# n8n folder (entire directory)
+n8n/
+
+# Specific workflow files
+workflow/expenses-telegram-bot-commands-final-working-version.json
+workflow/main-workflow.json
