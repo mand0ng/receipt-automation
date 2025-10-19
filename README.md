@@ -82,6 +82,8 @@ This project demonstrates an **n8n workflow** for automating receipt and expense
 ### /picture
 ![Picture workflow](./samples/picture.gif)
 
+### Demo in [Youtube](https://www.youtube.com/watch?v=a25mnNRkq8M)
+
 ---
 
 ## File Structure
